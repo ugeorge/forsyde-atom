@@ -18,7 +18,6 @@ module ForSyDe.Atom.MoC.SY.Interface where
 
 import           ForSyDe.Atom.Behavior
 import           ForSyDe.Atom.Utility
-import           ForSyDe.Atom.MoC.Atom
 import qualified ForSyDe.Atom.MoC.DE.Core as DE
 import qualified ForSyDe.Atom.MoC.SY.Core as SY
 

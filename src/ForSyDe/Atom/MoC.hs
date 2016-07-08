@@ -16,7 +16,6 @@
 
 module ForSyDe.Atom.MoC(
 
-
   -- * Atom
   
   MoC(..),
@@ -118,6 +117,5 @@ module ForSyDe.Atom.MoC(
   mealy41, mealy42, mealy43, mealy44,  
   ) where
 
-import ForSyDe.Atom.MoC.Atom
-import ForSyDe.Atom.MoC.Cons
+import ForSyDe.Atom.MoC.Timed
 

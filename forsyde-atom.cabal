@@ -46,8 +46,8 @@ library
                        ForSyDe.Atom.Signal,
                        ForSyDe.Atom.Behavior,
                        ForSyDe.Atom.MoC,
-                       ForSyDe.Atom.MoC.Atom,
-                       ForSyDe.Atom.MoC.Cons,
+                       ForSyDe.Atom.MoC.Timed,
+                       ForSyDe.Atom.MoC.Untimed,
                        ForSyDe.Atom.MoC.SY,
                        ForSyDe.Atom.MoC.SY.Core,
                        ForSyDe.Atom.MoC.SY.Lib,
@@ -60,18 +60,22 @@ library
                        ForSyDe.Atom.MoC.CT,
                        ForSyDe.Atom.MoC.CT.Core,
                        ForSyDe.Atom.MoC.CT.Lib,
+                       ForSyDe.Atom.MoC.SDF,
+                       ForSyDe.Atom.MoC.SDF.Core,
+                       -- ForSyDe.Atom.MoC.SDF.Lib,
                        ForSyDe.Atom.Utility
   -- other-modules:       
   Default-Language:    Haskell2010
   other-extensions:    PostfixOperators
-  build-depends:       base>=4.7.10 && <6, 
-                       parameterized-data, 
-                       type-level,
+  build-depends:       HUnit,
+                       QuickCheck,
+                       base>=4.7.10 && <6,
+                       parameterized-data,
                        test-framework,
                        test-framework-hunit,
                        test-framework-quickcheck2,
-                       QuickCheck, 
-                       HUnit
+                       type-level,
+                       uniplate >= 1.6.12
   hs-source-dirs:      src
 
 Test-Suite forsyde-testsuite
@@ -85,4 +89,4 @@ Test-Suite forsyde-testsuite
                        test-framework,
                        test-framework-hunit,
                        test-framework-quickcheck2,
-                       HUnit
+                       HUnit	

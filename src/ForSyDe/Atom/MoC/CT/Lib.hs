@@ -16,7 +16,7 @@
 -----------------------------------------------------------------------------
 module ForSyDe.Atom.MoC.CT.Lib where
 
-import qualified ForSyDe.Atom.MoC.Cons as MoC
+import qualified ForSyDe.Atom.MoC.Timed as MoC
 import           ForSyDe.Atom.MoC.CT.Core
 import           ForSyDe.Atom.Utility
 import           ForSyDe.Atom.Behavior hiding (value)
