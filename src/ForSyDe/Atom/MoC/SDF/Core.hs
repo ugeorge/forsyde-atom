@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies, FlexibleInstances, PostfixOperators #-}
+{-# LANGUAGE TypeFamilies, FlexibleInstances, PostfixOperators, TypeOperators, FlexibleContexts #-}
 {-# OPTIONS_HADDOCK hide #-}
 -----------------------------------------------------------------------------
 -- |
@@ -22,6 +22,19 @@ import ForSyDe.Atom.MoC
 import ForSyDe.Atom.MoC.Stream
 import ForSyDe.Atom.Utility
 
+import Data.Array.Repa hiding ((++), map)
+import Data.Array.Repa.Repr.Unboxed
+
+type Tokens a = Array U (Z :. Int) a
+
+
+rate :: Source r e => Array r DIM1 e -> Int
+rate = size . extent
+
+unsafeFromList :: Unbox a => [a] -> Array U DIM1 a 
+unsafeFromList ls = let c = length ls
+                    in  fromListUnboxed (Z :. c) ls
+
 -- | Type synonym for production rate
 type Cons = Int
 
@@ -38,37 +51,49 @@ newtype SDF a = SDF { val :: a }
 
 -- | Implenents the SDF semantics for the MoC atoms
 instance MoC SDF where
-  type Fun SDF a b = (Cons, [a] -> b)
-  type Ret SDF a   = (Prod, [a])
-  ---------------------
-  _ -.- NullS = NullS
-  (c,f) -.- s = (comb c f . map val . fromStream) s
-    where comb c f l = let x'  = take c l
-                           xs' = drop c l
-                       in if   length x' == c
-                          then SDF (f x') :- comb c f xs'
-                          else NullS
-  ---------------------
-  _  -*- NullS = NullS
-  NullS -*- _  = NullS
-  cfs -*- s = (comb2 cfs . map val . fromStream) s
-    where comb2 NullS           _ = NullS
-          comb2 (SDF (c,f):-fs) l = let x'  = take c l
-                                        xs' = drop c l
-                                    in if   length x' == c
-                                       then SDF (f x') :- comb2 fs xs'
-                                       else NullS
-  ---------------------
-  (-*) NullS = NullS
-  (-*) ((SDF (p,r)):-xs)
-    | length r == p = stream (map SDF r) +-+ (xs -*)
-    | otherwise     = error "[MoC.SDF] Wrong production"
-  ---------------------
-  (-<-) = (+-+)
-  ---------------------
-  (-&-) _ a = a
-  ---------------------
+  type Fun SDF a b = Tokens a -> b
+  type Ret SDF a   = Tokens a
+  ----------------------
+  -- _ -..- NullS = NullS
+  -- f -..- s = (comb f . map val . fromStream) s
+  --   where comb f l = let x'  = unsafeFromList $ take c l
+  --                        xs' = drop c l
+  --                        c   = rate x'
+  --                        x'' = f x'
+  --                    in if   length x' == c
+  --                       then SDF x'' :- comb f xs'
+  --                       else NullS
+  -- ---------------------
+  -- _  -*- NullS = NullS
+  -- NullS -*- _  = NullS
+  -- cfs -*- s = (comb2 cfs . map val . fromStream) s
+  --   where comb2 NullS           _ = NullS
+  --         comb2 (SDF (c,f):-fs) l = let x'  = take c l
+  --                                       xs' = drop c l
+  --                                   in if   length x' == c
+  --                                      then SDF (f x') :- comb2 fs xs'
+  --                                      else NullS
+  -- ---------------------
+  -- (-*) NullS = NullS
+  -- (-*) ((SDF (p,r)):-xs)
+  --   | length r == p = stream (map SDF r) +-+ (xs -*)
+  --   | otherwise     = error "[MoC.SDF] Wrong production"
+  -- ---------------------
+  -- (-<-) = (+-+)
+  -- ---------------------
+  -- (-&-) _ a = a
+  -- ---------------------
 
+(-..-) :: Unbox a2 => (Tokens a2 -> a3) -> Stream (SDF a2) -> Stream (SDF a3)
+_ -..- NullS = NullS
+f -..- s = (comb f . map val . fromStream) s
+  where comb f l = let x'  = unsafeFromList $ take c l
+                       xs' = drop c l
+                       c   = rate x'
+                       x'' = f x'
+                   in if   length (toList x') == c
+                      then SDF x'' :- comb f xs'
+                      else NullS
 
 -- | Allows for mapping of functions on a SDF event.
 instance Functor SDF where
